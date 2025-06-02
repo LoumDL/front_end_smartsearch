@@ -2,7 +2,7 @@
 
 export default {
   // URL de base de l'API - récupérée depuis les variables d'environnement
-  baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://44.231.83.63:8000',
+  baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
   
   // Envoyer un message texte à l'API
   async sendTextMessage(question: string) {

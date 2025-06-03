@@ -1,4 +1,3 @@
-
 <template>
   <div class="app-container">
     <!-- Sidebar -->
@@ -204,13 +203,15 @@
   </div>
 </template>
 
-
 <script setup>
 import { ref, onMounted, nextTick, computed, watch } from 'vue';
 import ChatMessage from './components/ChatMessage.vue';
 import ConversationHistory from './components/ConversationHistory.vue';
 import chatApi from './api/chat';
 import { useConversationStore } from './store/conversationStore';
+
+// ✅ NOUVEAU : Récupérer la config Nuxt
+const config = useRuntimeConfig()
 
 // Store pour les conversations
 const conversationStore = useConversationStore();
@@ -407,7 +408,8 @@ const sendMessage = async (event) => {
   isLoading.value = true;
   
   try {
-    // Appel à l'API
+    // ✅ NOUVEAU : Passer l'URL de base à chatApi
+    chatApi.baseUrl = config.public.apiBaseUrl;
     const response = await chatApi.sendTextMessage(userMessageText);
     
     // Format d'exemple SDN pour démonstration du formatage
@@ -527,7 +529,8 @@ const sendWithFile = async () => {
   isLoading.value = true;
   
   try {
-    // Appel à l'API multimodale
+    // ✅ NOUVEAU : Passer l'URL de base à chatApi
+    chatApi.baseUrl = config.public.apiBaseUrl;
     const response = await chatApi.sendMultimodalMessage(userMessageText, selectedFile.value);
     
     // Formater la réponse avec Markdown pour une meilleure structure

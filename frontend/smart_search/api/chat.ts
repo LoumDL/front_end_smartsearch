@@ -1,20 +1,14 @@
 // api/chat.ts
 export default {
-  // Récupération de l'URL via useRuntimeConfig (uniquement côté client/serveur Nuxt)
-  getBaseUrl() {
-    if (process.client || process.server) {
-      const config = useRuntimeConfig()
-      return config.public.apiBaseUrl
-    }
-    return 'https://smartsearch.myfad.org' // fallback
-  },
+  // URL de base - sera définie dynamiquement depuis app.vue
+  baseUrl: 'https://smartsearch.myfad.org',
 
   // Envoyer un message texte à l'API
   async sendTextMessage(question: string) {
     try {
-      const baseUrl = this.getBaseUrl()
+      console.log('API URL utilisée:', `${this.baseUrl}/smartsearch/text`) // Debug
       
-      const response = await $fetch(`${baseUrl}/smartsearch/text`, {
+      const response = await $fetch(`${this.baseUrl}/smartsearch/text`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -32,12 +26,13 @@ export default {
   // Envoyer une requête multimodale (avec fichier)
   async sendMultimodalMessage(prompt: string, file: File) {
     try {
-      const baseUrl = this.getBaseUrl()
+      console.log('API URL utilisée:', `${this.baseUrl}/smartsearch/multimodal`) // Debug
+      
       const formData = new FormData()
       formData.append('prompt', prompt)
       formData.append('file', file)
      
-      const response = await $fetch(`${baseUrl}/smartsearch/multimodal`, {
+      const response = await $fetch(`${this.baseUrl}/smartsearch/multimodal`, {
         method: 'POST',
         body: formData,
       })

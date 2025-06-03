@@ -9,8 +9,8 @@ export default defineNuxtConfig({
         { name: 'description', content: 'Assistant virtuel IFAD Halki' }
       ],
       link: [
-        { 
-          rel: 'stylesheet', 
+        {
+          rel: 'stylesheet',
           href: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css',
           integrity: 'sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==',
           crossorigin: 'anonymous'
@@ -30,5 +30,21 @@ export default defineNuxtConfig({
       tailwindcss: {},
       autoprefixer: {},
     },
+  },
+  
+  // Configuration SSR
+  ssr: true,
+  
+  // Configuration des variables d'environnement
+  runtimeConfig: {
+    // Variables publiques (accessibles côté client et serveur)
+    public: {
+      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+    }
+  },
+
+  // Configuration Nitro pour Vercel
+  nitro: {
+    preset: 'vercel'
   }
 })

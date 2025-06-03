@@ -6,7 +6,7 @@ export default {
       const config = useRuntimeConfig()
       return config.public.apiBaseUrl
     }
-    return 'http://localhost:8000' // fallback
+    return 'https://smartsearch.myfad.org' // fallback
   },
 
   // Envoyer un message texte à l'API

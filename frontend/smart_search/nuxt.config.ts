@@ -31,18 +31,19 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
-  
+ 
   // Configuration SSR
   ssr: true,
-  
+ 
   // Configuration des variables d'environnement
   runtimeConfig: {
     // Variables publiques (accessibles côté client et serveur)
     public: {
-      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'https://smartsearch.myfad.org'
+      // ✅ UTILISE LE PROXY NUXT au lieu de l'API directe
+      apiBaseUrl: '/api/smartsearch' // Proxy local
     }
   },
-
+  
   // Configuration Nitro pour Vercel
   nitro: {
     preset: 'vercel'

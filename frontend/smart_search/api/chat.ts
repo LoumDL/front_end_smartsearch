@@ -1,13 +1,12 @@
 // api/chat.ts
 export default {
-  // ✅ UTILISE LE PROXY LOCAL - ne pas changer cette valeur
-  baseUrl: '/api/smartsearch',
+  // ✅ Utilise les nouvelles routes simplifiées
+  baseUrl: '/api',
 
-  // Envoyer un message texte à l'API
   async sendTextMessage(question: string) {
     try {
-      const fullUrl = `${this.baseUrl}/text`
-      console.log('📤 Proxy URL utilisée:', fullUrl) // Doit afficher "/api/smartsearch/text"
+      const fullUrl = `${this.baseUrl}/smartsearch-text`
+      console.log('📤 URL Proxy simplifiée:', fullUrl)
       
       const response = await $fetch(fullUrl, {
         method: 'POST',
@@ -17,20 +16,19 @@ export default {
         body: { question },
       })
      
-      console.log('✅ Réponse via proxy:', response)
+      console.log('✅ Réponse reçue via proxy:', response)
       return response
     } catch (error: any) {
-      console.error('❌ Erreur proxy:', error)
+      console.error('❌ Erreur proxy simplifié:', error)
       throw error
     }
   },
  
-  // Envoyer une requête multimodale (avec fichier)
   async sendMultimodalMessage(prompt: string, file: File) {
     try {
-      const fullUrl = `${this.baseUrl}/multimodal`
-      console.log('📤 Proxy URL utilisée:', fullUrl) // Doit afficher "/api/smartsearch/multimodal"
-      console.log('📁 Fichier:', file.name, 'Taille:', file.size)
+      const fullUrl = `${this.baseUrl}/smartsearch-multimodal`
+      console.log('📤 URL Proxy multimodal simplifiée:', fullUrl)
+      console.log('📁 Fichier à envoyer:', file.name, 'Taille:', file.size)
       
       const formData = new FormData()
       formData.append('prompt', prompt)
@@ -41,15 +39,14 @@ export default {
         body: formData,
       })
      
-      console.log('✅ Réponse via proxy:', response)
+      console.log('✅ Réponse multimodal reçue:', response)
       return response
     } catch (error: any) {
-      console.error('❌ Erreur proxy:', error)
+      console.error('❌ Erreur proxy multimodal:', error)
       throw error
     }
   },
  
-  // Récupérer l'historique des conversations
   async getConversationHistory() {
     return { conversations: [] }
   }

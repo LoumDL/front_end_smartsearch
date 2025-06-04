@@ -1,16 +1,12 @@
-// server/api/smartsearch/text.post.ts
+// server/api/smartsearch-text.post.ts
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   
-  // URL de votre API RAG
-  const API_BASE_URL = 'https://smartsearch.myfad.org'
-  const url = `${API_BASE_URL}/smartsearch/text`
-  
-  console.log('🔄 Proxy vers:', url)
+  console.log('🔄 Proxy smartsearch-text vers API')
   console.log('📦 Body reçu:', body)
   
   try {
-    const response = await fetch(url, {
+    const response = await fetch('https://smartsearch.myfad.org/smartsearch/text', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -20,23 +16,23 @@ export default defineEventHandler(async (event) => {
       body: JSON.stringify(body),
     })
     
-    console.log('📡 Statut reçu:', response.status)
+    console.log('📡 Statut API reçu:', response.status)
     
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('❌ Erreur API:', errorText)
+      console.error('❌ Erreur API externe:', errorText)
       throw createError({
         statusCode: response.status,
-        statusMessage: `Erreur API: ${response.status} - ${errorText}`
+        statusMessage: `Erreur API RAG: ${response.status} - ${errorText}`
       })
     }
 
     const data = await response.json()
-    console.log('✅ Réponse reçue:', data)
+    console.log('✅ Données reçues de l\'API:', data)
     
     return data
   } catch (error: any) {
-    console.error('💥 Erreur lors du proxy:', error)
+    console.error('💥 Erreur dans le proxy:', error)
     
     throw createError({
       statusCode: 500,

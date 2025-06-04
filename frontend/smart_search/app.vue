@@ -210,9 +210,6 @@ import ConversationHistory from './components/ConversationHistory.vue';
 import chatApi from './api/chat';
 import { useConversationStore } from './store/conversationStore';
 
-// ✅ NOUVEAU : Récupérer la config Nuxt
-const config = useRuntimeConfig()
-
 // Store pour les conversations
 const conversationStore = useConversationStore();
 
@@ -408,8 +405,8 @@ const sendMessage = async (event) => {
   isLoading.value = true;
   
   try {
-    // ✅ NOUVEAU : Passer l'URL de base à chatApi
-    chatApi.baseUrl = config.public.apiBaseUrl;
+    // ✅ UTILISE DIRECTEMENT chatApi SANS MODIFIER baseUrl
+    console.log('🔍 URL de base chatApi:', chatApi.baseUrl) // Debug
     const response = await chatApi.sendTextMessage(userMessageText);
     
     // Format d'exemple SDN pour démonstration du formatage
@@ -529,8 +526,8 @@ const sendWithFile = async () => {
   isLoading.value = true;
   
   try {
-    // ✅ NOUVEAU : Passer l'URL de base à chatApi
-    chatApi.baseUrl = config.public.apiBaseUrl;
+    // ✅ UTILISE DIRECTEMENT chatApi SANS MODIFIER baseUrl
+    console.log('🔍 URL de base chatApi:', chatApi.baseUrl) // Debug
     const response = await chatApi.sendMultimodalMessage(userMessageText, selectedFile.value);
     
     // Formater la réponse avec Markdown pour une meilleure structure

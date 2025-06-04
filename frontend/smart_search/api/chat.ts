@@ -1,14 +1,15 @@
 // api/chat.ts
 export default {
-  // URL de base - sera définie dynamiquement depuis app.vue (maintenant pointe vers le proxy)
+  // ✅ UTILISE LE PROXY LOCAL - ne pas changer cette valeur
   baseUrl: '/api/smartsearch',
 
   // Envoyer un message texte à l'API
   async sendTextMessage(question: string) {
     try {
-      console.log('📤 API URL utilisée:', `${this.baseUrl}/text`)
+      const fullUrl = `${this.baseUrl}/text`
+      console.log('📤 Proxy URL utilisée:', fullUrl) // Doit afficher "/api/smartsearch/text"
       
-      const response = await $fetch(`${this.baseUrl}/text`, {
+      const response = await $fetch(fullUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -16,10 +17,10 @@ export default {
         body: { question },
       })
      
-      console.log('✅ Réponse reçue:', response)
+      console.log('✅ Réponse via proxy:', response)
       return response
     } catch (error: any) {
-      console.error('❌ Erreur lors de l\'envoi du message:', error)
+      console.error('❌ Erreur proxy:', error)
       throw error
     }
   },
@@ -27,23 +28,23 @@ export default {
   // Envoyer une requête multimodale (avec fichier)
   async sendMultimodalMessage(prompt: string, file: File) {
     try {
-      console.log('📤 API URL utilisée:', `${this.baseUrl}/multimodal`)
+      const fullUrl = `${this.baseUrl}/multimodal`
+      console.log('📤 Proxy URL utilisée:', fullUrl) // Doit afficher "/api/smartsearch/multimodal"
       console.log('📁 Fichier:', file.name, 'Taille:', file.size)
       
       const formData = new FormData()
       formData.append('prompt', prompt)
       formData.append('file', file)
      
-      const response = await $fetch(`${this.baseUrl}/multimodal`, {
+      const response = await $fetch(fullUrl, {
         method: 'POST',
         body: formData,
-        // Pas de Content-Type pour FormData - laisse le navigateur le définir
       })
      
-      console.log('✅ Réponse reçue:', response)
+      console.log('✅ Réponse via proxy:', response)
       return response
     } catch (error: any) {
-      console.error('❌ Erreur lors de l\'envoi du message multimodal:', error)
+      console.error('❌ Erreur proxy:', error)
       throw error
     }
   },

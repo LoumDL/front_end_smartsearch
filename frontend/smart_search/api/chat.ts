@@ -1,5 +1,5 @@
 import { useRuntimeConfig } from '#app';
-import { RequestInit } from 'node-fetch';
+import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 
 // Types spécifiques pour les réponses
 interface BaseApiResponse {
@@ -75,60 +75,49 @@ class ValidationError extends ApiError {
   }
 }
 
-// Fonction utilitaire pour le timeout
-function timeoutPromise(ms: number) {
-  return new Promise((_, reject) => {
-    setTimeout(() => reject(new Error('Timeout')), ms);
-  });
-}
-
-async function fetchApi<T extends BaseApiResponse>(
+async function axiosApi<T extends BaseApiResponse>(
   url: string,
-  options: RequestInit = {},
+  options: AxiosRequestConfig = {},
   retries = config.retries
 ): Promise<T> {
   try {
-    // Ajouter un timeout
-    const controller = new AbortController();
-    const { signal } = controller;
-    
-    // Créer une promesse qui se résout au premier succès ou échec
-    const response = await Promise.race([
-      fetch(url, {
-        ...options,
-        headers: {
-          ...config.headers,
-          ...options.headers
-        },
-        credentials: 'include',
-        signal
-      }),
-      timeoutPromise(config.timeout)
-    ]);
+    const response = await axios.request({
+      ...options,
+      baseURL: config.baseURL,
+      url,
+      headers: {
+        ...config.headers,
+        ...options.headers
+      },
+      timeout: config.timeout,
+      withCredentials: true
+    });
 
-    if (!response.ok) {
-      throw new ApiError(
-        response.status,
-        `Erreur API (${response.status})`,
-        await response.json().catch(() => null)
-      );
-    }
-
-    const data = await response.json();
-    
-    if (!data.success) {
+    if (!response.data.success) {
       throw new ApiError(
         400,
-        data.error || 'Erreur API',
-        data
+        response.data.error || 'Erreur API',
+        response.data
       );
     }
     
-    return data as T;
+    return response.data as T;
   } catch (error: any) {
-    if (retries > 0 && error.name === 'NetworkError') {
-      // Réessayer en cas d'erreur réseau
-      return fetchApi(url, options, retries - 1);
+    const axiosError = error as AxiosError;
+    
+    if (axiosError.isAxiosError) {
+      if (retries > 0 && axiosError.code === 'ECONNABORTED') {
+        // Réessayer en cas de timeout
+        return axiosApi(url, options, retries - 1);
+      }
+      
+      if (axiosError.response) {
+        throw new ApiError(
+          axiosError.response.status,
+          `Erreur API (${axiosError.response.status})`,
+          axiosError.response.data
+        );
+      }
     }
     
     console.error('❌ Erreur:', error);
@@ -141,13 +130,13 @@ async function sendTextMessage(question: string): Promise<TextResponse> {
     throw new ValidationError('Question vide');
   }
 
-  const url = `${config.baseURL}/smartsearch-text`;
+  const url = '/smartsearch-text';
   console.log('📤 URL:', url);
   
-  return fetchApi<TextResponse>(url, {
+  return axiosApi<TextResponse>(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ question })
+    data: { question }
   });
 }
 
@@ -160,22 +149,22 @@ async function sendMultimodalMessage(prompt: string, file: File): Promise<Multim
     throw new ValidationError('Fichier trop grand (max 50MB)');
   }
 
-  const url = `${config.baseURL}/smartsearch-multimodal`;
+  const url = '/smartsearch-multimodal';
   console.log('📤 URL:', url);
   
   const formData = new FormData();
   formData.append('prompt', prompt);
   formData.append('file', file);
   
-  return fetchApi<MultimodalResponse>(url, {
+  return axiosApi<MultimodalResponse>(url, {
     method: 'POST',
-    body: formData
+    data: formData
   });
 }
 
 async function getConversationHistory(): Promise<ConversationResponse> {
-  const url = `${config.baseURL}/conversations`;
-  return fetchApi<ConversationResponse>(url, { method: 'GET' });
+  const url = '/conversations';
+  return axiosApi<ConversationResponse>(url, { method: 'GET' });
 }
 
 export const chatApi = {

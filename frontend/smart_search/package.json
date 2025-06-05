@@ -15,7 +15,9 @@
     "vue-router": "^4.5.1",
     "dompurify": "^3.0.7",
     "@types/node": "^18.18.0",
-    "@types/jest": "^29.5.11"
+    "@types/jest": "^29.5.11",
+    "node-fetch": "^3.3.2",
+    "axios": "^1.6.7"
   },
   "devDependencies": {
     "@vue/test-utils": "^2.4.0",

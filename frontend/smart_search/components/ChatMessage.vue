@@ -26,45 +26,36 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
+import { sanitize } from 'dompurify';
 
-const props = defineProps({
-  text: {
-    type: String,
-    required: true
-  },
-  isUser: {
-    type: Boolean,
-    default: false
-  },
-  senderName: {
-    type: String,
-    default: 'Assistant Halki'
-  },
-  actions: {
-    type: Array,
-    default: () => []
-  },
-  isError: {
-    type: Boolean,
-    default: false
-  },
-  processingTime: {
-    type: Number,
-    default: null
-  }
-});
+interface Action {
+  type: string;
+  label: string;
+  icon: string;
+}
+
+interface Props {
+  text: string;
+  isUser: boolean;
+  senderName: string;
+  actions: Action[];
+  isError: boolean;
+  processingTime: number | null;
+}
+
+const props = defineProps<Props>();
 
 defineEmits(['action-clicked']);
 
-// Fonction pour formater le texte sans dépendance externe
+// Fonction pour formater le texte avec sécurité
 const formattedText = computed(() => {
   if (!props.text) return '';
 
   // Si c'est un message utilisateur, on conserve le formatage simple
   if (props.isUser) {
-    return props.text.replace(/\n/g, '<br>');
+    return sanitize(props.text.replace(/\n/g, '<br>'));
   }
   
   // Pour les messages de l'assistant, on applique un formatage personnalisé
@@ -84,7 +75,7 @@ const formattedText = computed(() => {
   const paragraphs = html.split('\n\n');
   html = paragraphs.map(p => {
     if (!p.trim()) return '';
-    if (p.match(/^<h[1-3]>|^<ul>|^<li>/)) return p; // Ne pas envelopper les titres et listes
+    if (p.match(/^<h[1-3]>|^<ul>|^<li>/)) return p;
     return `<p>${p}</p>`;
   }).join('\n');
   
@@ -102,17 +93,20 @@ const formattedText = computed(() => {
     return `<p>${p1}<br>${p2}</p>`;
   });
   
-  // Nettoyer et finaliser
-  html = html.replace(/\n/g, ' ');
-  
-  return html;
+  // Nettoyer le HTML pour la sécurité
+  return sanitize(html, {
+    ALLOWED_TAGS: ['h1', 'h2', 'h3', 'p', 'strong', 'em', 'ul', 'li', 'br', 'hr'],
+    ALLOWED_ATTR: []
+  });
 });
 
 // Formater le temps de traitement
-const formatProcessingTime = (seconds) => {
-  if (seconds < 0.01) return 'Instantané';
-  if (seconds < 1) return `${Math.round(seconds * 1000)}ms`;
-  return `${seconds.toFixed(2)}s`;
+const formatProcessingTime = (seconds: number | null): string => {
+  if (!seconds) return '';
+  if (seconds < 60) return `${Math.round(seconds)}s`;
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = Math.round(seconds % 60);
+  return `${minutes}m ${remainingSeconds}s`;
 };
 </script>
 

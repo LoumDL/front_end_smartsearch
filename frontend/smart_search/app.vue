@@ -1,26 +1,10 @@
 <template>
   <div class="app-container">
-    <!-- Erreur globale -->
-    <div v-if="hasError" class="error-container">
-      <div class="error-message">
-        <i class="fas fa-exclamation-circle"></i>
-        {{ errorMessage }}
-        <button class="error-close" @click="clearError">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-    </div>
-
     <!-- Sidebar -->
     <div class="sidebar" :class="{ 'sidebar-open': isSidebarOpen }">
       <div class="sidebar-header">
         <div class="logo-container">
-          <img 
-            src="/logo-ifad.png" 
-            alt="IFAD Logo" 
-            class="logo" 
-            @error="handleImageError"
-          />
+          <img src="/logo-ifad.png" alt="IFAD Logo" class="logo" />
           <span class="logo-text">IFAD</span>
         </div>
         <div class="logo-divider"></div>
@@ -32,7 +16,7 @@
         </button>
       </div>
 
-      <button class="new-document-btn" @click="startNewChat" :disabled="isLoading">
+      <button class="new-document-btn" @click="startNewChat">
         <i class="fas fa-plus"></i> Nouvelle Discussion
       </button>
 
@@ -56,18 +40,13 @@
         </div>
         <div class="user-info">
           <span></span>
-          <img 
-            src="/user-avatar.png" 
-            alt="User Avatar" 
-            class="user-avatar" 
-            @error="handleImageError"
-          />
+          <img src="/user-avatar.png" alt="User Avatar" class="user-avatar" />
         </div>
       </div>
 
       <div class="chat-container" ref="chatContainer">
         <!-- Messages -->
-        <div v-for="(message, index) in currentMessages" :key="message.id">
+        <div v-for="(message, index) in currentMessages" :key="index">
           <ChatMessage 
             :text="message.text" 
             :is-user="message.sender === 'user'" 
@@ -225,49 +204,30 @@
 </template>
 
 <script setup>
-import { 
-  ref, 
-  onMounted, 
-  nextTick, 
-  computed, 
-  watch,
-  onErrorCaptured,
-  onBeforeUnmount 
-} from 'vue';
+import { ref, onMounted, nextTick, computed, watch } from 'vue';
 import ChatMessage from './components/ChatMessage.vue';
 import ConversationHistory from './components/ConversationHistory.vue';
-import { useConversationStore } from '~/store/conversation';
-import { useUserStore } from '~/store/user';
-import { validateFile } from '~/utils/fileValidator';
+import chatApi from './api/chat';
+import { useConversationStore } from './store/conversationStore';
 
+// ✅ NOUVEAU : Récupérer la config Nuxt
+const config = useRuntimeConfig()
+
+// Store pour les conversations
 const conversationStore = useConversationStore();
-const userStore = useUserStore();
 
-const currentMessages = computed(() => conversationStore.messages);
-const isSidebarOpen = ref(true);
-const isMobile = ref(false);
-const isLoading = ref(false);
-const hasError = ref(false);
-const errorMessage = ref('');
+// Références
 const chatContainer = ref(null);
+const messageInput = ref(null);
+const newMessage = ref('');
+const isLoading = ref(false);
+const isMobile = ref(false);
+const isSidebarOpen = ref(false);
+const showFileUpload = ref(false);
 const showFormatOptions = ref(false);
 const selectedFile = ref(null);
-const showFileUpload = ref(false);
+const filePreviewUrl = ref('');
 const highlightDropArea = ref(false);
-
-// Gestion des erreurs globales
-onErrorCaptured((error) => {
-  console.error('Erreur globale:', error);
-  hasError.value = true;
-  errorMessage.value = error.message || 'Une erreur est survenue';
-  return false;
-});
-
-// Nettoyage des ressources
-onBeforeUnmount(() => {
-  selectedFile.value = null;
-  chatContainer.value = null;
-});
 
 // Données de la conversation courante
 const currentMessages = computed(() => {
@@ -346,21 +306,14 @@ const isPdf = computed(() => {
 });
 
 // Gestion du fichier sélectionné
-const onFileSelected = async (event) => {
-  try {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    // Validation du fichier
-    const isValid = await validateFile(file);
-    if (!isValid) {
-      throw new Error('Type de fichier non supporté');
-    }
-    
+const onFileSelected = (event) => {
+  const file = event.target.files[0];
+  if (file) {
     selectedFile.value = file;
-    showFileUpload.value = true;
-  } catch (error) {
-    handleError(error);
+    
+    if (isImage.value) {
+      filePreviewUrl.value = URL.createObjectURL(file);
+    }
   }
 };
 
@@ -369,7 +322,10 @@ const onFileDrop = (event) => {
   const file = event.dataTransfer.files[0];
   if (file && ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'].includes(file.type)) {
     selectedFile.value = file;
-    showFileUpload.value = true;
+    
+    if (isImage.value) {
+      filePreviewUrl.value = URL.createObjectURL(file);
+    }
   }
 };
 
@@ -452,8 +408,8 @@ const sendMessage = async (event) => {
   isLoading.value = true;
   
   try {
-    // ✅ UTILISE DIRECTEMENT chatApi SANS MODIFIER baseUrl
-    console.log('🔍 URL de base chatApi:', chatApi.baseUrl) // Debug
+    // ✅ NOUVEAU : Passer l'URL de base à chatApi
+    chatApi.baseUrl = config.public.apiBaseUrl;
     const response = await chatApi.sendTextMessage(userMessageText);
     
     // Format d'exemple SDN pour démonstration du formatage
@@ -573,8 +529,8 @@ const sendWithFile = async () => {
   isLoading.value = true;
   
   try {
-    // ✅ UTILISE DIRECTEMENT chatApi SANS MODIFIER baseUrl
-    console.log('🔍 URL de base chatApi:', chatApi.baseUrl) // Debug
+    // ✅ NOUVEAU : Passer l'URL de base à chatApi
+    chatApi.baseUrl = config.public.apiBaseUrl;
     const response = await chatApi.sendMultimodalMessage(userMessageText, selectedFile.value);
     
     // Formater la réponse avec Markdown pour une meilleure structure

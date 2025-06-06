@@ -1,20 +1,28 @@
 export default defineEventHandler(async (event) => {
   const { slug } = getRouterParams(event)
-  const query = getQuery(event)
   
-  const API_BASE_URL = process.env.NUXT_API_BASE_URL || 'https://smartsearch.myfad.org'
-  const url = `${API_BASE_URL}/smartsearch/${slug.join('/')}`
+  const slugArray = Array.isArray(slug) ? slug : [slug]
+  const endpoint = slugArray.join('/')
+  
+  const API_BASE_URL = 'https://smartsearch.myfad.org'
+  const url = `${API_BASE_URL}/smartsearch/${endpoint}`
   
   console.log('🔄 Proxy vers:', url)
+  console.log('📦 Method:', event.method)
   
   try {
+    // ✅ TIMEOUT COMPATIBLE avec AbortController manuel
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 secondes
+    
     const fetchOptions: RequestInit = {
       method: event.method,
       headers: {
         'Accept': 'application/json',
         'User-Agent': 'Vercel-Nuxt-Proxy/1.0',
+        'Content-Type': 'application/json',
       },
-      signal: AbortSignal.timeout(30000)
+      signal: controller.signal
     }
 
     if (event.method !== 'GET' && event.method !== 'HEAD') {
@@ -38,22 +46,32 @@ export default defineEventHandler(async (event) => {
           }
           
           fetchOptions.body = newFormData
+          // Supprimer Content-Type pour FormData
+          delete fetchOptions.headers['Content-Type']
         }
       } else {
         const body = await readBody(event).catch(() => ({}))
-        
-        fetchOptions.headers = {
-          ...fetchOptions.headers,
-          'Content-Type': 'application/json',
-        }
         fetchOptions.body = JSON.stringify(body)
+        console.log('📤 Body envoyé:', fetchOptions.body)
       }
     }
 
+    console.log('🚀 Envoi requête...')
+    
+    const startTime = Date.now()
     const response = await fetch(url, fetchOptions)
+    const endTime = Date.now()
+    
+    // Nettoyer le timeout
+    clearTimeout(timeoutId)
+    
+    console.log('📡 Statut:', response.status)
+    console.log('⏱️ Temps de réponse:', endTime - startTime, 'ms')
     
     if (!response.ok) {
       const errorText = await response.text().catch(() => 'Erreur inconnue')
+      console.error('❌ Erreur API:', response.status, errorText)
+      
       throw createError({
         statusCode: response.status,
         statusMessage: `API Error: ${response.status}`,
@@ -66,9 +84,13 @@ export default defineEventHandler(async (event) => {
     }
 
     const data = await response.json().catch(async () => {
-      return { text: await response.text() }
+      const text = await response.text()
+      return { text: text }
     })
     
+    console.log('✅ Réponse reçue avec succès')
+    
+    // Headers CORS
     setHeaders(event, {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -78,9 +100,9 @@ export default defineEventHandler(async (event) => {
     return data
     
   } catch (error: any) {
-    console.error('💥 Erreur proxy:', error)
+    console.error('💥 Erreur proxy:', error.name, error.message)
     
-    if (error.name === 'AbortError' || error.name === 'TimeoutError') {
+    if (error.name === 'AbortError') {
       throw createError({
         statusCode: 504,
         statusMessage: 'Timeout - L\'API met trop de temps à répondre',
@@ -91,7 +113,7 @@ export default defineEventHandler(async (event) => {
     if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
       throw createError({
         statusCode: 503,
-        statusMessage: 'Service indisponible - Impossible de contacter l\'API',
+        statusMessage: 'Service indisponible',
         data: { error: 'Network error', url }
       })
     }

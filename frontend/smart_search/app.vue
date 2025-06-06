@@ -411,21 +411,12 @@ const sendMessage = async (event) => {
     // L'API se configure maintenant automatiquement
     const response = await chatApi.sendTextMessage(userMessageText);
     
-    // Format d'exemple SDN pour démonstration du formatage
-    let formattedResponse = response.reponse;
-    
-    // Détecter si la réponse contient du texte sur SDN et appliquer un formatage structuré
-    if (formattedResponse.includes('SDN') && formattedResponse.includes('contrôleur')) {
-      // C'est juste une démonstration - en production, l'API retournera directement la réponse formatée
-      formattedResponse = formatSDNResponse(formattedResponse);
-    }
-    
-    // Ajouter la réponse de l'assistant
+    // Utiliser directement la réponse de l'API (supposée être en markdown)
     const assistantMessage = {
       id: `assistant-${Date.now()}`,
       sender: 'assistant',
       senderName: 'Assistant Halki',
-      text: formattedResponse,
+      text: response.reponse, // Utilisation directe de la réponse API
       timestamp: new Date().toISOString(),
       actions: [
         { type: 'extract', label: 'Texte réimprimable (à extraire)', icon: 'fas fa-copy' },
@@ -454,45 +445,6 @@ const sendMessage = async (event) => {
     // Faire défiler vers le bas après la réponse
     await scrollToBottom();
   }
-};
-
-// Fonction pour formater la réponse SDN (à des fins de démonstration seulement)
-const formatSDNResponse = (text) => {
-  if (!text.includes('SDN')) return text;
-  
-  // Extraction du titre principal
-  let formattedText = "# Le contrôleur SDN (Software-Defined Networking)\n\n";
-  
-  // Ajout d'une description initiale
-  formattedText += "Un composant central d'un réseau SDN, chargé de gérer et de contrôler le plan de contrôle du réseau. Il permet une **gestion centralisée** et **programmable** des ressources réseau.\n\n";
-  
-  // Création des sections principales
-  formattedText += "## 1. Caractéristiques principales\n\n";
-  formattedText += "Le contrôleur SDN agit comme un **point de décision central** pour l'ensemble du réseau. Il communique avec les **commutateurs virtuels** (ou physiques) via des protocoles comme OpenFlow, permettant de programmer le comportement des appareils réseau.\n\n";
-  
-  formattedText += "## 2. API Nord\n\n";
-  formattedText += "Il expose une **API Nord** (vers les applications) pour permettre à des logiciels externes (ex: outils de gestion, applications métier) d'interagir avec le réseau. Cela permet la création, la surveillance et la modification des réseaux virtuels.\n\n";
-  
-  formattedText += "## 3. Virtualisation des réseaux\n\n";
-  formattedText += "Dans un contexte de **NFV** (Network Function Virtualization), le contrôleur SDN orchestre la virtualisation des réseaux. Il connecte des **hyperviseurs** aux commutateurs virtuels, en programmant l'encapsulation des paquets pour les transmettre à travers le réseau sous-jacent.\n\n";
-  
-  formattedText += "## 4. Gestion des QoS/QoE\n\n";
-  formattedText += "Le contrôleur intègre des **paramètres de QoS** pour garantir des performances adaptées aux besoins des utilisateurs. Par exemple, il peut prioriser le trafic vidéo ou les appels en temps réel, en fonction des exigences de latence ou de bande passante.\n\n";
-  
-  formattedText += "## 5. Adoption dans l'industrie\n\n";
-  formattedText += "### 5.1 Fournisseurs de cloud\n\n";
-  formattedText += "**Fournisseurs de cloud** (Google, Facebook, Microsoft) utilisent des contrôleurs SDN pour optimiser leurs infrastructures, bien que leurs solutions restent souvent propriétaires.\n\n";
-  
-  formattedText += "### 5.2 Opérateurs télécoms\n\n";
-  formattedText += "**Opérateurs télécoms** (AT&T, NTT, Comcast) adoptent des approches hybrides, combinant SDN et des technologies traditionnelles.\n\n";
-  
-  formattedText += "### 5.3 Entreprises\n\n";
-  formattedText += "**Entreprises** intègrent le SDN via des solutions comme le **SD-WAN** (Software-Defined Wide Area Network), pour simplifier la gestion des réseaux distants.\n\n";
-  
-  formattedText += "---\n\n";
-  formattedText += "En résumé, le contrôleur SDN est le **cerveau du réseau** modernisé, permettant une flexibilité, une scalabilité et une optimisation des performances grâce à sa programmabilité et son intégration avec des technologies comme la virtualisation et les réseaux hybrides.";
-  
-  return formattedText;
 };
 
 // Envoi de message avec fichier
@@ -531,15 +483,12 @@ const sendWithFile = async () => {
     // L'API se configure maintenant automatiquement
     const response = await chatApi.sendMultimodalMessage(userMessageText, selectedFile.value);
     
-    // Formater la réponse avec Markdown pour une meilleure structure
-    const formattedResponse = "# Analyse du document\n\n" + response.reponse;
-    
-    // Ajouter la réponse de l'assistant
+    // Utiliser directement la réponse de l'API (supposée être en markdown)
     const assistantMessage = {
       id: `assistant-${Date.now()}`,
       sender: 'assistant',
       senderName: 'Assistant Halki',
-      text: formattedResponse,
+      text: response.reponse, // Utilisation directe de la réponse API
       timestamp: new Date().toISOString(),
       actions: [
         { type: 'extract', label: 'Texte réimprimable (à extraire)', icon: 'fas fa-copy' },

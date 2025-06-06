@@ -56,12 +56,10 @@ export default defineNuxtConfig({
   // Configuration Nitro pour Vercel avec optimisations
   nitro: {
     preset: 'vercel',
-    // Augmenter les timeouts pour Vercel
+    // Configuration Vercel pour les timeouts
     vercel: {
       functions: {
-        'api/smartsearch/[...slug].ts': {
-          maxDuration: 30
-        }
+        maxDuration: 30
       }
     },
     // Configuration des headers globaux

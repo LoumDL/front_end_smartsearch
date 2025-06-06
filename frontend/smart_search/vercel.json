@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "nuxt.config.ts",
+      "use": "@nuxtjs/vercel-builder",
+      "config": {
+        "serverFiles": ["server/**"]
+      }
+    }
+  ],
+  "functions": {
+    "server/api/smartsearch/[...slug].ts": {
+      "maxDuration": 30
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization, X-API-Key"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/smartsearch/(.*)",
+      "destination": "/api/smartsearch/$1"
+    }
+  ],
+  "env": {
+    "NUXT_API_BASE_URL": "@nuxt_api_base_url",
+    "NUXT_API_KEY": "@nuxt_api_key"
+  }
+}

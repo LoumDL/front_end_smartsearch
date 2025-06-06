@@ -18,13 +18,16 @@ export default defineNuxtConfig({
       ]
     },
   },
+  
   modules: [
     '@nuxtjs/tailwindcss',
     '@pinia/nuxt',
   ],
+  
   css: [
     './assets/css/main.css',
   ],
+  
   postcss: {
     plugins: {
       tailwindcss: {},
@@ -32,20 +35,66 @@ export default defineNuxtConfig({
     },
   },
  
-  // Configuration SSR
+  // Configuration SSR pour Vercel
   ssr: true,
  
   // Configuration des variables d'environnement
   runtimeConfig: {
-    // Variables publiques (accessibles côté client et serveur)
+    // Variables privées (côté serveur uniquement)
+    apiBaseUrl: process.env.NUXT_API_BASE_URL || 'https://smartsearch.myfad.org',
+    apiKey: process.env.NUXT_API_KEY || '',
+    
+    // Variables publiques (côté client et serveur)
     public: {
-      // ✅ UTILISE LE PROXY NUXT au lieu de l'API directe
-      apiBaseUrl: '/api/smartsearch' // Proxy local
+      // Utilise le proxy pour éviter les problèmes CORS
+      apiBaseUrl: '/api/smartsearch',
+      environment: process.env.NODE_ENV || 'development',
+      appVersion: process.env.npm_package_version || '1.0.0'
     }
   },
   
-  // Configuration Nitro pour Vercel
+  // Configuration Nitro pour Vercel avec optimisations
   nitro: {
-    preset: 'vercel'
+    preset: 'vercel',
+    // Augmenter les timeouts pour Vercel
+    vercel: {
+      functions: {
+        'api/smartsearch/[...slug].ts': {
+          maxDuration: 30
+        }
+      }
+    },
+    // Configuration des headers globaux
+    routeRules: {
+      '/api/**': { 
+        headers: { 
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-API-Key'
+        },
+        prerender: false 
+      }
+    }
+  },
+
+  // Configuration du build pour optimiser pour Vercel
+  build: {
+    // Réduire la taille du bundle
+    extractCSS: true,
+  },
+
+  // Configuration expérimentale pour améliorer les performances
+  experimental: {
+    payloadExtraction: false // Désactiver pour éviter les problèmes sur Vercel
+  },
+
+  // Configuration des hooks pour le debugging
+  hooks: {
+    'build:before': () => {
+      console.log('🏗️  Building for production...')
+    },
+    'nitro:config': (nitroConfig) => {
+      console.log('⚡ Nitro preset:', nitroConfig.preset)
+    }
   }
 })

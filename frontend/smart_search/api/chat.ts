@@ -12,14 +12,14 @@ class SmartSearchApi {
       throw new Error('La question ne peut pas être vide');
     }
     
-    console.log('📤 Envoi requête TEXT via proxy Vercel...');
+    console.log('📤 Envoi requête TEXT via proxy unique Vercel...');
    
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
    
     try {
-      // ✅ NOUVELLE ROUTE SIMPLE
-      const response = await fetch('/api/text', {
+      // ✅ PROXY UNIQUE - Détecté automatiquement comme TEXT via Content-Type
+      const response = await fetch('/api/proxy', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -32,12 +32,12 @@ class SmartSearchApi {
      
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Erreur HTTP:', response.status, errorText);
+        console.error('❌ Erreur HTTP TEXT:', response.status, errorText);
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
      
       const data = await response.json();
-      console.log('✅ Réponse TEXT reçue via proxy');
+      console.log('✅ Réponse TEXT reçue via proxy unique');
       return data;
      
     } catch (error: any) {
@@ -61,7 +61,7 @@ class SmartSearchApi {
       throw new Error('Le fichier est requis');
     }
 
-    console.log('📤 Envoi requête MULTIMODAL via proxy Vercel...');
+    console.log('📤 Envoi requête MULTIMODAL via proxy unique Vercel...');
     console.log('📁 Fichier:', file.name, 'Taille:', file.size);
    
     const controller = new AbortController();
@@ -72,10 +72,10 @@ class SmartSearchApi {
       formData.append('prompt', prompt.trim());
       formData.append('file', file);
 
-      // ✅ NOUVEAU : Utilise le nouveau proxy /rag
-      const response = await fetch('/api/multimodal', {
+      // ✅ PROXY UNIQUE - Détecté automatiquement comme MULTIMODAL via multipart/form-data
+      const response = await fetch('/api/proxy', {
         method: 'POST',
-        body: formData, // Pas de Content-Type pour FormData
+        body: formData, // Content-Type automatiquement multipart/form-data
         signal: controller.signal,
       });
      
@@ -83,12 +83,12 @@ class SmartSearchApi {
      
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Erreur HTTP multimodal:', response.status, errorText);
+        console.error('❌ Erreur HTTP MULTIMODAL:', response.status, errorText);
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
      
       const data = await response.json();
-      console.log('✅ Réponse MULTIMODAL reçue via proxy');
+      console.log('✅ Réponse MULTIMODAL reçue via proxy unique');
       return data;
      
     } catch (error: any) {
@@ -128,7 +128,7 @@ function getApiInstance(): SmartSearchApi {
   return apiInstance;
 }
 
-// Export principal avec les bonnes URLs
+// Export principal - PROXY UNIQUE pour TEXT et MULTIMODAL
 export default {
   async sendTextMessage(question: string): Promise<ApiResponse> {
     return getApiInstance().sendTextMessage(question);

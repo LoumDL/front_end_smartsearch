@@ -18,8 +18,8 @@ class SmartSearchApi {
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
    
     try {
-      // ✅ NOUVEAU : Utilise le nouveau proxy /rag
-      const response = await fetch('/api/rag/text', {
+      // ✅ NOUVELLE ROUTE SIMPLE
+      const response = await fetch('/api/text', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ class SmartSearchApi {
       formData.append('file', file);
 
       // ✅ NOUVEAU : Utilise le nouveau proxy /rag
-      const response = await fetch('/api/rag/multimodal', {
+      const response = await fetch('/api/multimodal', {
         method: 'POST',
         body: formData, // Pas de Content-Type pour FormData
         signal: controller.signal,

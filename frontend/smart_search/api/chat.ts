@@ -18,8 +18,8 @@ class SmartSearchApi {
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
    
     try {
-      // ✅ CORRECTION : Appel de l'endpoint spécifique /text
-      const response = await fetch('/api/smartsearch/text', {
+      // ✅ NOUVEAU : Utilise le nouveau proxy /rag
+      const response = await fetch('/api/rag/text', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -72,8 +72,8 @@ class SmartSearchApi {
       formData.append('prompt', prompt.trim());
       formData.append('file', file);
 
-      // ✅ CORRECTION : Appel de l'endpoint spécifique /multimodal
-      const response = await fetch('/api/smartsearch/multimodal', {
+      // ✅ NOUVEAU : Utilise le nouveau proxy /rag
+      const response = await fetch('/api/rag/multimodal', {
         method: 'POST',
         body: formData, // Pas de Content-Type pour FormData
         signal: controller.signal,

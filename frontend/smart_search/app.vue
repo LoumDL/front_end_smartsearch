@@ -4,11 +4,11 @@
     <div class="sidebar" :class="{ 'sidebar-open': isSidebarOpen }">
       <div class="sidebar-header">
         <div class="logo-container">
-          <img src="/logo-ifad.png" alt="IFAD Logo" class="logo" />
-          <span class="logo-text">IFAD</span>
+          <img src="/logo-ifad.png" alt="ISFAD Logo" class="logo" />
+          <span class="logo-text">ISFAD</span>
         </div>
         <div class="logo-divider"></div>
-        <div class="assistant-name">Halki</div>
+        <div class="assistant-name">Hakili</div>
         
         <!-- Bouton de fermeture pour mobile -->
         <button class="close-sidebar-btn" @click="toggleSidebar" v-if="isMobile">
@@ -50,7 +50,7 @@
           <ChatMessage 
             :text="message.text" 
             :is-user="message.sender === 'user'" 
-            :sender-name="message.senderName || 'Assistant Halki'" 
+            :sender-name="message.senderName || 'Assistant Hakili'" 
             :actions="message.actions || []"
             :is-error="message.isError || false"
             :processing-time="message.processingTime"
@@ -64,8 +64,9 @@
           <div class="empty-icon">
             <i class="fas fa-comments"></i>
           </div>
-          <h3>Bienvenue sur l'Assistant Halki</h3>
-          <p>Posez vos questions ou partagez des fichiers pour commencer la conversation.</p>
+          <h3>Bienvenue sur l'Assistant Hakili</h3>
+          <p class="welcome-subtitle">Je suis l'assistant virtuel de l'ISFAD. Comment puis-je vous aider aujourd'hui ?</p>
+          <p class="welcome-description">Vous pouvez me poser des questions sur divers sujets. Je suis capable de structurer mes réponses de manière claire.</p>
         </div>
 
         <!-- Typing Indicator -->
@@ -415,7 +416,7 @@ const sendMessage = async (event) => {
     const assistantMessage = {
       id: `assistant-${Date.now()}`,
       sender: 'assistant',
-      senderName: 'Assistant Halki',
+      senderName: 'Assistant Hakili',
       text: response.reponse, // Utilisation directe de la réponse API
       timestamp: new Date().toISOString(),
       actions: [
@@ -432,7 +433,7 @@ const sendMessage = async (event) => {
     const errorMessage = {
       id: `error-${Date.now()}`,
       sender: 'assistant',
-      senderName: 'Assistant Halki',
+      senderName: 'Assistant Hakili',
       text: `Désolé, une erreur s'est produite: ${error.message}`,
       timestamp: new Date().toISOString(),
       isError: true
@@ -487,7 +488,7 @@ const sendWithFile = async () => {
     const assistantMessage = {
       id: `assistant-${Date.now()}`,
       sender: 'assistant',
-      senderName: 'Assistant Halki',
+      senderName: 'Assistant Hakili',
       text: response.reponse, // Utilisation directe de la réponse API
       timestamp: new Date().toISOString(),
       actions: [
@@ -504,7 +505,7 @@ const sendWithFile = async () => {
     const errorMessage = {
       id: `error-${Date.now()}`,
       sender: 'assistant',
-      senderName: 'Assistant Halki',
+      senderName: 'Assistant Hakili',
       text: `Désolé, une erreur s'est produite lors du traitement du fichier: ${error.message}`,
       timestamp: new Date().toISOString(),
       isError: true
@@ -816,13 +817,23 @@ body {
 .empty-conversation h3 {
   font-size: 18px;
   font-weight: 500;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
   color: #202124;
 }
 
-.empty-conversation p {
+.welcome-subtitle {
+  font-size: 16px;
+  font-weight: 500;
+  max-width: 400px;
+  margin-bottom: 12px;
+  color: #1a73e8;
+}
+
+.welcome-description {
   font-size: 14px;
-  max-width: 320px;
+  max-width: 400px;
+  line-height: 1.5;
+  color: #5f6368;
 }
 
 /* Typing Indicator */
@@ -1240,6 +1251,11 @@ body {
   .file-preview {
     width: 60px;
     height: 60px;
+  }
+  
+  .welcome-subtitle,
+  .welcome-description {
+    max-width: 300px;
   }
 }
 </style>

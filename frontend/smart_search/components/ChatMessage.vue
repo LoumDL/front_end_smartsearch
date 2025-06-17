@@ -191,7 +191,8 @@ const renderedMarkdown = computed(() => {
 });
 </script>
 
-<style scoped>
+<style scoped>  
+
 .message-container {
   display: flex;
   align-items: flex-start;
@@ -303,6 +304,7 @@ const renderedMarkdown = computed(() => {
   position: relative;
 }
 
+
 :deep(.section-number) {
   display: inline-block;
   background: linear-gradient(135deg, #1a73e8 0%, #1967d2 100%);
@@ -396,7 +398,6 @@ const renderedMarkdown = computed(() => {
 :deep(.markdown-bold) {
   font-weight: 700;
   color: #1a73e8;
-  background: linear-gradient(120deg, transparent 0%, rgba(26, 115, 232, 0.1) 100%);
   padding: 1px 3px;
   border-radius: 3px;
 }
@@ -407,14 +408,14 @@ const renderedMarkdown = computed(() => {
   font-weight: 500;
 }
 
-/* Styles pour les listes */
+/* Styles pour les listes #fafbfc */
 :deep(.markdown-list) {
   margin: 18px 0;
   padding-left: 0;
-  background-color: #fafbfc;
+  background-color: #ffffff;
   border-radius: 8px;
   padding: 12px;
-  border-left: 3px solid #34a853;
+  border-left: 3px solid #1a73e8;
 }
 
 :deep(.markdown-list-item) {
@@ -433,21 +434,12 @@ const renderedMarkdown = computed(() => {
 
 :deep(.markdown-list-item::before) {
   content: "▶";
-  color: #34a853;
+  color: #669cff;
   font-weight: bold;
   position: absolute;
   left: 8px;
   top: 8px;
   font-size: 12px;
-}
-
-:deep(.markdown-numbered-list) {
-  margin: 18px 0;
-  padding: 12px 12px 12px 32px;
-  background-color: #fff8e1;
-  border-radius: 8px;
-  border-left: 3px solid #fbbc04;
-  counter-reset: list-counter;
 }
 
 :deep(.markdown-numbered-item) {
@@ -465,8 +457,7 @@ const renderedMarkdown = computed(() => {
 }
 
 :deep(.markdown-numbered-item::before) {
-  content: counter(list-counter) ".";
-  color: #fbbc04;
+  color : #174ea6 ;
   font-weight: bold;
   position: absolute;
   left: -20px;
@@ -479,7 +470,7 @@ const renderedMarkdown = computed(() => {
   align-items: center;
   justify-content: center;
   font-size: 12px;
-  border: 2px solid #fbbc04;
+  
 }
 
 /* Styles pour les citations */
@@ -612,4 +603,5 @@ const renderedMarkdown = computed(() => {
     font-size: 16px;
   }
 }
+
 </style>

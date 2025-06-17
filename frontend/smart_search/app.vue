@@ -5,10 +5,10 @@
       <div class="sidebar-header">
         <div class="logo-container">
           <img src="/logo-ifad.png" alt="ISFAD Logo" class="logo" />
-          <span class="logo-text">ISFAD</span>
+          <span class="logo-text">Hakili</span>
         </div>
         <div class="logo-divider"></div>
-        <div class="assistant-name">Hakili</div>
+        
         
         <!-- Bouton de fermeture pour mobile -->
         <button class="close-sidebar-btn" @click="toggleSidebar" v-if="isMobile">
